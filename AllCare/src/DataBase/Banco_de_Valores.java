@@ -48,7 +48,7 @@ public class Banco_de_Valores {
         }
     }
     
-    public static ArrayList<Doenca> procura_Doencas(ArrayList<Sintoma> sintomas,Statement declarador,ResultSet rv){
+    public static ArrayList<Doenca> procura_Doencas(ArrayList<Sintoma> sintomas, Statement declarador, ResultSet rv){
         ArrayList<Integer> Cod_Doencas = new ArrayList<>();
         ArrayList<Doenca> Doencas = new ArrayList<>();
         String codSintomas = "", codDoencas="";
