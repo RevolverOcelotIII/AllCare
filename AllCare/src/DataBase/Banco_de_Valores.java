@@ -28,7 +28,7 @@ public class Banco_de_Valores {
                 declarador.executeUpdate("Insert into Doenca_x_Sintoma(cod_doenca,cod_sintoma) values ('"+doenca.getCod_doenca()+"','"+sint.getCod_sintoma()+"')");
             }
         } catch (Exception e) {
-            System.out.println("Deu problema no banco");
+            System.out.println("Deu problem in the bank: "+e.getMessage());
         }
     }
     
@@ -36,7 +36,7 @@ public class Banco_de_Valores {
         try {
             declarador.executeUpdate("Insert into Sintoma(nome) values('"+sintoma.getNome()+"');");
         } catch (Exception e) {
-            System.out.println("Deu problema no banco");
+            System.out.println("Deu problem in the bank: "+e.getMessage());
         }
     }
     
@@ -44,19 +44,55 @@ public class Banco_de_Valores {
         try {
             declarador.executeUpdate("Insert into Doenca_x_Sintoma(cod_doenca,cod_sintoma) values ('"+cod_doenca+"','"+cod_sintoma+"')");
         } catch (Exception e) {
-            System.out.println("Deu problema no banco");
+            System.out.println("Deu problem in the bank: "+e.getMessage());
         }
     }
     
     public static ArrayList<Doenca> procura_Doencas(ArrayList<Sintoma> sintomas,Statement declarador,ResultSet rv){
-        ArrayList<Integer> DoencasExcluidas = new ArrayList();
-        try {
-            for(Sintoma sint : sintomas){
-                rv = declarador.executeQuery("Select cod_doenca from Doenca_x_Sintoma where cod_sintoma != '"+sint.getCod_sintoma()+"'");
-            }
-            DoencasExcluidas.add(rv.getInt("cod_doenca"));
-            
-        } catch (Exception e) {
+        ArrayList<Integer> Cod_Doencas = new ArrayList<>();
+        ArrayList<Doenca> Doencas = new ArrayList<>();
+        String codSintomas = "", codDoencas="";
+        int y;
+        
+        for(Sintoma sint : sintomas){
+            codSintomas += "select cod_doenca from Doenca_x_Sintoma where cod_sintoma='"+sint.getCod_sintoma()+"'; Intersect ";
         }
+        y = codSintomas.lastIndexOf("Intersect");
+        codSintomas = codSintomas.substring(0, y-1);
+        
+        try{
+            rv = declarador.executeQuery(codSintomas);
+            while(rv.next()){
+                Cod_Doencas.add(rv.getInt("cod_sintoma"));
+            }
+        }catch(Exception e){
+            System.out.println("Deu problem in the bank: "+e.getMessage());
+        }
+        
+        for(int cod_doenca : Cod_Doencas){
+            codDoencas = codDoencas + "'"+cod_doenca+"'" + " or Doenca.cod_Doenca= ";
+        }
+        y = codSintomas.lastIndexOf(" or Doenca.cod_Doenca= ");
+        codSintomas = codSintomas.substring(0, y-1);
+        codSintomas += ";";
+        try {
+            rv = declarador.executeQuery("select Doenca.* from Doenca, Doenca_x_Sintoma where Doenca.cod_doenca = Doenca_x_Sintoma.cod_Doenca and ( Doenca.cod_Doenca=" + codDoencas);
+        } catch (Exception e) {
+            System.out.println("Deu problem in the bank: "+e.getMessage()); 
+        }
+        try {
+            while(rv.next()){
+                Doenca doenca = new Doenca();
+                doenca.setNome(rv.getString("Nome"));
+                doenca.setCod_doenca(rv.getInt("Cod_Doenca"));
+                doenca.setDescricao(rv.getString("Descricao"));
+                Doencas.add(doenca);
+            }
+        } catch (Exception e) {
+            System.out.println("Deu problem in the bank: "+e.getMessage());
+        }
+        return Doencas;
     }
+    
+    
 }
