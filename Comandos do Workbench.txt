@@ -1,0 +1,39 @@
+create database Allcare;
+
+use Allcare;
+
+create table Sintoma(
+
+	cod_sintoma int not null auto_increment,
+	
+nome varchar(45),
+    
+	primary key(cod_sintoma));
+
+
+
+create table Doenca(
+	
+	cod_doenca int not null auto_increment,
+
+    	nome varchar(45),
+    
+	primary key(cod_doenca));
+    
+
+
+create table Doenca_x_Sintoma(
+	
+	cod_sintoma int,
+    
+	cod_doenca int,
+   
+	primary key(cod_sintoma,cod_doenca),
+    
+	foreign key(cod_sintoma) references Sintoma(cod_sintoma),
+    
+	foreign key(cod_doenca) references Doenca(cod_doenca));
+    
+
+
+alter table Doenca add column Descricao varchar(200);
