@@ -48,6 +48,22 @@ public class Banco_de_Valores {
         }
     }
     
+    public static ArrayList<Sintoma> puxa_Sintomas(Statement declarador, ResultSet retorno){
+        ArrayList<Sintoma> sintomas = new ArrayList<>();
+        try {
+            retorno = declarador.executeQuery("Select * from Sintoma");
+            while(retorno.next()){
+                Sintoma sint = new Sintoma();
+                sint.setCod_sintoma(retorno.getInt("cod_sintoma"));
+                sint.setNome(retorno.getString("nome"));
+                sintomas.add(sint);
+            }
+        } catch (Exception e) {
+            System.out.println("Deu problem in the bank: "+e.getMessage());
+        }
+        return sintomas;
+    }
+    
     public static ArrayList<Doenca> procura_Doencas(ArrayList<Sintoma> sintomas, Statement declarador, ResultSet rv){
         ArrayList<Integer> Cod_Doencas = new ArrayList<>();
         ArrayList<Doenca> Doencas = new ArrayList<>();
