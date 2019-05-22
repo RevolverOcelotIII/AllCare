@@ -16,11 +16,13 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 public class TelaCadastro extends Application {
@@ -35,6 +37,9 @@ public class TelaCadastro extends Application {
     RadioButton radioPatient, radioDoctor;
     ToggleGroup group;
     Button buttonEntrar, buttonCadastrar;
+    //ImageAnimeIcon.png");
+    Image AnimeIcon;
+    ImageIcon AnimeIcone = new ImageIcon("AnimeIcon.png");
     
     public static void main(String[] args) {
         launch(args);
@@ -116,7 +121,7 @@ public class TelaCadastro extends Application {
             }
         });
         
-        //ButtorCadastrar
+        //ButtonCadastrar
         buttonCadastrar = new Button("Cadastrar");
         buttonCadastrar.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -124,7 +129,6 @@ public class TelaCadastro extends Application {
                 eventButtonCadastrar();
             }
         });
-        
         //Adicionando componentes
         layoutLogSign.getChildren().addAll(buttonEntrar, buttonCadastrar);
         
@@ -134,8 +138,10 @@ public class TelaCadastro extends Application {
         //Scene
         Scene scene = new Scene(layoutMain, 280, 380);
         scene.getStylesheets().addAll(this.getClass().getResource("StyleLogin.css").toExternalForm());
-        
+
         //Stage
+        primaryStage.getIcons().add(AnimeIcon);
+        primaryStage.setTitle("All Care");
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.show();
@@ -147,9 +153,9 @@ public class TelaCadastro extends Application {
             patient.setId_user(fieldUser.getText());
             patient.setSenha(fieldPass.getText());
             if(Login.Logar(patient, con.getDeclaracao_de_comandos(),con.getResult_consultas())){
-                JOptionPane.showMessageDialog(null, "Login Efetuado");
+                JOptionPane.showMessageDialog(null, "Login efetuado com sucesso", "Sucesso", 0,AnimeIcone);
             }else{
-                JOptionPane.showMessageDialog(null, "Usuário ou senha não reconhecidos");
+                JOptionPane.showMessageDialog(null, "Usuário ou senha não reconhecidos", "Fracasso", JOptionPane.ERROR_MESSAGE);
             }
         }else{
             Medico medician = new Medico();
