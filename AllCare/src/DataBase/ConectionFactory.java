@@ -54,7 +54,7 @@ public class ConectionFactory {
             this.coneccao = (Connection) DriverManager.getConnection(servidor,user,senha);
             this.declaracao_de_comandos = (Statement) this.coneccao.createStatement();
         } catch (Exception e) {
-            System.out.println("Não funfou a logagem");
+            System.out.println("Não funfou a logagem: "+e.getMessage());
         }
         
         return this.coneccao!=null;

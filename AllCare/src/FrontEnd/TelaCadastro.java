@@ -17,6 +17,8 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -26,6 +28,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 public class TelaCadastro extends Application {
+    
+    //Stage
+    Stage windowLogin;
     
     //VariavelConection
     ConectionFactory con;
@@ -37,10 +42,7 @@ public class TelaCadastro extends Application {
     RadioButton radioPatient, radioDoctor;
     ToggleGroup group;
     Button buttonEntrar, buttonCadastrar;
-    //ImageAnimeIcon.png");
-    Image AnimeIcon;
-    ImageIcon AnimeIcone = new ImageIcon("AnimeIcon.png");
-    
+ 
     public static void main(String[] args) {
         launch(args);
     }
@@ -48,12 +50,14 @@ public class TelaCadastro extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         
+        windowLogin = primaryStage;
+        
         //DatabaseConection
         con = new ConectionFactory();
         if(con.conectar()){
             System.out.println("A conexão foi estabelecida com success");
         }else{
-            System.out.println("A conexão não foi estabelecida :/");
+        System.out.println("A conexão não foi estabelecida :/");
         }
         //
         
@@ -81,13 +85,11 @@ public class TelaCadastro extends Application {
         //Field username
         fieldUser = new TextField();
         fieldUser.setPromptText("Usuário");
-        fieldUser.setFocusTraversable(false);
         GridPane.setConstraints(fieldUser, 0, 0);
         
         //Field password
         fieldPass = new PasswordField();
         fieldPass.setPromptText("Senha");
-        fieldPass.setFocusTraversable(false);
         GridPane.setConstraints(fieldPass, 0, 1);
         
         //Toggle group
@@ -138,51 +140,94 @@ public class TelaCadastro extends Application {
         //Scene
         Scene scene = new Scene(layoutMain, 280, 380);
         scene.getStylesheets().addAll(this.getClass().getResource("StyleLogin.css").toExternalForm());
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>(){
+            @Override
+            public void handle(KeyEvent event) {
+                if(event.getCode().equals(KeyCode.ENTER)){
+                    eventButtonEntrar();
+                }
+            }
+        });
 
         //Stage
-        primaryStage.getIcons().add(AnimeIcon);
-        primaryStage.setTitle("All Care");
-        primaryStage.setScene(scene);
-        primaryStage.setResizable(false);
-        primaryStage.show();
+        windowLogin.getIcons().add(new Image(TelaCadastro.class.getResourceAsStream("AnimeIcon.png")));
+        windowLogin.setTitle("All Care");
+        windowLogin.setScene(scene);
+        windowLogin.setResizable(false);
+        windowLogin.show();
     }
     
     public void eventButtonEntrar(){
-        if(radioPatient.isSelected()){
+        if(radioPatient.isSelected() && !fieldUser.getText().isEmpty() && !fieldPass.getText().isEmpty()){
             Paciente patient = new Paciente();
             patient.setId_user(fieldUser.getText());
             patient.setSenha(fieldPass.getText());
             if(Login.Logar(patient, con.getDeclaracao_de_comandos(),con.getResult_consultas())){
-                JOptionPane.showMessageDialog(null, "Login efetuado com sucesso", "Sucesso", 0,AnimeIcone);
+                radioPatient.setSelected(true);
+                fieldUser.setText("");
+                fieldPass.setText("");
+                TelaPaciente telaPaciente = new TelaPaciente();
+                telaPaciente.display(windowLogin, con);
             }else{
-                JOptionPane.showMessageDialog(null, "Usuário ou senha não reconhecidos", "Fracasso", JOptionPane.ERROR_MESSAGE);
+                NovoJOptionPane.display("Usuário ou senha não reconhecidos", "Erro", new Image(TelaCadastro.class.getResourceAsStream("ErrorIcon.png")));
+                //JOptionPane.showMessageDialog(null, "Usuário ou senha não reconhecidos", "Erro", 0, new ImageIcon(TelaCadastro.class.getResource("ErrorIcon.png")));
             }
-        }else{
+        } else if(radioDoctor.isSelected() && !fieldUser.getText().isEmpty() && !fieldPass.getText().isEmpty()){
             Medico medician = new Medico();
             medician.setId_user(fieldUser.getText());
             medician.setSenha(fieldPass.getText());
             if(Login.Logar(medician, con.getDeclaracao_de_comandos(),con.getResult_consultas())){
-                JOptionPane.showMessageDialog(null, "Login Efetuado");
+                radioPatient.setSelected(true);
+                fieldUser.setText("");
+                fieldPass.setText("");
+                TelaDoutor telaDoutor = new TelaDoutor();
+                telaDoutor.display(windowLogin, con);
             }else{
-                JOptionPane.showMessageDialog(null, "Usuário ou senha não reconhecidos");
+                NovoJOptionPane.display("Usuário ou senha não reconhecidos", "Erro", new Image(TelaCadastro.class.getResourceAsStream("ErrorIcon.png")));
+                //JOptionPane.showMessageDialog(null, "Usuário ou senha não reconhecidos", "Erro", 0, new ImageIcon(TelaCadastro.class.getResource("ErrorIcon.png")));
             }
+        } else if(fieldUser.getText().isEmpty() || fieldPass.getText().isEmpty()){
+            NovoJOptionPane.display("Preencha todos os campos", "Erro", new Image(TelaCadastro.class.getResourceAsStream("ErrorIcon.png")));
+            //JOptionPane.showMessageDialog(null, "Preencha todos os campos", "Erro", 0, new ImageIcon(TelaCadastro.class.getResource("ErrorIcon.png")));
         }
     }
     
     public void eventButtonCadastrar(){
-        if(radioPatient.isSelected()){
+        String errorDuplicate = "";
+                
+        if(radioPatient.isSelected() && !fieldUser.getText().isEmpty() && !fieldPass.getText().isEmpty()){
             Paciente patient = new Paciente();
             patient.setId_user(fieldUser.getText());
             patient.setSenha(fieldPass.getText());
-            Login.Cadastro(patient, con.getDeclaracao_de_comandos());
-            JOptionPane.showMessageDialog(null, "Cadastro efetuado");
-        }else{
+            errorDuplicate = Login.Cadastro(patient, con.getDeclaracao_de_comandos());
+            if(errorDuplicate.isEmpty()){               
+                NovoJOptionPane.display("Cadastro efetuado", "Sucesso", new Image(TelaCadastro.class.getResourceAsStream("AnimeIconForJOptionPane.png")));
+                //JOptionPane.showMessageDialog(null, "Cadastro efetuado", "Sucesso", 0, new ImageIcon(TelaCadastro.class.getResource("AnimeIconForJOptionPane.png")));
+            }else{
+                NovoJOptionPane.display("Nome de usuário já utilizado", "Erro", new Image(TelaCadastro.class.getResourceAsStream("ErrorIcon.png")));
+                //JOptionPane.showMessageDialog(null, "Nome de usuário já utilizado", "Erro", 0, new ImageIcon(TelaCadastro.class.getResource("ErrorIcon.png")));
+            }
+        }
+        if(radioDoctor.isSelected() && !fieldUser.getText().isEmpty() && !fieldPass.getText().isEmpty()){
             Medico medician = new Medico();
             medician.setId_user(fieldUser.getText());
             medician.setSenha(fieldPass.getText());
-            Login.Cadastro(medician, con.getDeclaracao_de_comandos());
-            JOptionPane.showMessageDialog(null, "Cadastro efetuado");
+            errorDuplicate = Login.Cadastro(medician, con.getDeclaracao_de_comandos());
+            if(errorDuplicate.isEmpty()){
+                NovoJOptionPane.display("Cadastro efetuado", "Sucesso", new Image(TelaCadastro.class.getResourceAsStream("AnimeIconForJOptionPane.png")));
+                //JOptionPane.showMessageDialog(null, "Cadastro efetuado", "Sucesso", 0, new ImageIcon(TelaCadastro.class.getResource("AnimeIconForJOptionPane.png")));
+            }else{
+                NovoJOptionPane.display("Nome de usuário já utilizado", "Erro", new Image(TelaCadastro.class.getResourceAsStream("ErrorIcon.png")));
+                //JOptionPane.showMessageDialog(null, "Nome de usuário já utilizado", "Erro", 0, new ImageIcon(TelaCadastro.class.getResource("ErrorIcon.png")));
+            }
         }
+        
+        if(fieldUser.getText().isEmpty() || fieldPass.getText().isEmpty()){
+            NovoJOptionPane.display("Preencha todos os campos", "Erro", new Image(TelaCadastro.class.getResourceAsStream("ErrorIcon.png")));
+            //JOptionPane.showMessageDialog(null, "Preencha todos os campos", "Erro", 0, new ImageIcon(TelaCadastro.class.getResource("ErrorIcon.png")));
+        }
+        
+        fieldUser.setText("");
+        fieldPass.setText("");
     }
-    
 }

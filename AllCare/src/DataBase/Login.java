@@ -18,12 +18,14 @@ import java.sql.Statement;
  */
 public class Login {
     
-    public static void Cadastro(Usuario user, Statement declarador){
+    //Cadastro retornando string para na tela de login ver se não há um user com o mesmo id 
+    public static String Cadastro(Usuario user, Statement declarador) {
         if(user instanceof Medico){
             try {
                 declarador.executeUpdate("Insert into Medico(id_user,senha) values ('"+user.getId_user()+"','"+user.getSenha()+"');");
             } catch (SQLException e) {
                 System.out.println("Deu problem in the bank: "+e.getMessage());
+                return e.getMessage();
             }
         }
         if(user instanceof Paciente){
@@ -31,8 +33,10 @@ public class Login {
                 declarador.executeUpdate("Insert into Paciente(id_user,senha) values ('"+user.getId_user()+"','"+user.getSenha()+"');");
             } catch (SQLException e) {
                 System.out.println("Deu problem in the bank: "+e.getMessage());
+                return e.getMessage();
             }
         }
+        return "";
     }
     
     public static boolean Logar(Usuario user, Statement declarador,ResultSet rv){
