@@ -1,0 +1,7 @@
+#pane{
+    -fx-background-image: url("DoctorScreen.png");
+    -fx-background-repeat: stretch;
+    -fx-background-size: 450 450;
+    -fx-background-position: center center;
+}
+
